@@ -50,7 +50,7 @@ const groupSchema = new mongoose.Schema({
 })
 
 groupSchema.virtual('membersLength').get(function () {
-  return this.members.length
+  return this.members ? this.members.length : undefined
 })
 
 groupSchema.pre(/^find/, function (next) {

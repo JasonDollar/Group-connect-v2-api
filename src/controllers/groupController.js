@@ -20,7 +20,7 @@ exports.createGroup = async (req, res) => {
       data: populated,
     })
   } catch (e) {
-    res.json({ status: 'error', message: e.message })
+    res.status(500).json({ status: 'error', error: e })
   }
 
 }
@@ -44,7 +44,7 @@ exports.fetchGroupInfo = async (req, res) => {
       data: group,
     })
   } catch (e) {
-    res.json({ status: 'error', message: e.message })
+    res.status(500).json({ status: 'error', error: e })
   }
 
 }

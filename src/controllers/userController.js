@@ -10,18 +10,23 @@ exports.getLoggedInUserInfo = async (req, res) => {
 }
 
 exports.getGroupsWithUserMembership = async (req, res) => {
-  const groups = await Group.find({
-    'members.user': req.user._id,
-  })
-  // const groups = await Group.find({
-  //   members: {
-  //     user: {
-  //       $in: [req.user._id],
-  //     },
-  //   },
-  // })
-  res.status(200).json({
-    status: 'success',
-    data: groups,
-  })
+  try {
+    const groups = await Group.find({
+      'members.user': req.user._id,
+    }).select('-members -__v -private -createdAt -createdBy ')
+    // const groups = await Group.find({
+    //   members: {
+    //     user: {
+    //       $in: [req.user._id],
+    //     },
+    //   },
+    // })
+    res.status(200).json({
+      status: 'success',
+      data: groups,
+    })
+  } catch (e) {
+    res.status(500).json({ status: 'error', error: e.message })
+  }
+
 }

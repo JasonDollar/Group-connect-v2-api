@@ -42,7 +42,7 @@ exports.createAccount = async (req, res) => {
     createAndSendToken(newUser, 201, res)
   } catch (e) {
     res.status(404).json({
-      status: 'fail',
+      status: 'error',
       message: e.message,
     })
   }
@@ -54,7 +54,7 @@ exports.login = async (req, res, next) => {
 
   if (!email || !password) {
     return res.status(400).json({
-      status: 'fail',
+      status: 'error',
       message: 'You must provide email and password',
     })
   }
@@ -64,7 +64,7 @@ exports.login = async (req, res, next) => {
     const isMatch = user ? await user.correctPassword(password, user.password) : false
     if (!user || !isMatch) {
       return res.status(401).json({
-        status: 'fail',
+        status: 'error',
         message: 'Incorrect email or password',
       })
     }
@@ -72,7 +72,7 @@ exports.login = async (req, res, next) => {
 
   } catch (e) {
     res.status(500).json({
-      status: 'fail',
+      status: 'error',
       error: e,
     })
   }
@@ -137,7 +137,7 @@ exports.checkGroupMembership = async (req, res, next) => {
     req.user.isMember = isMember
     next()
   } catch (e) {
-    return res.json({ status: 'error', message: e.message })
+    res.status(500).json({ status: 'error', error: e })
   }
 
 }

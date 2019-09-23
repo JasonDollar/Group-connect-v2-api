@@ -54,7 +54,7 @@ exports.fetchAllPosts = async (req, res) => {
 exports.fetchAllGroupPosts = async (req, res) => {
   const groupId = decodeHashId(req.params.groupId)
 
-  const posts = await Post.find({ createdInGroup: groupId })
+  const posts = await Post.find({ createdInGroup: groupId }).populate('createdBy', 'name')
   res.status(200).json({
     status: 'success',
     data: posts,

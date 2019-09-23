@@ -4,6 +4,9 @@ const authController = require('../controllers/authController')
 
 const router = express.Router()
 
+
+router.post('/create', authController.createAccount)
+router.post('/login', authController.login)
 router.get('/me', authController.protect, userController.getLoggedInUserInfo)
 router.get('/groups-member', authController.protect, userController.getGroupsWithUserMembership)
 

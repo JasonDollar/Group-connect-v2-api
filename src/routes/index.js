@@ -18,8 +18,8 @@ router.get('/api/hello', (req, res) => {
 // router.patch('/api/posts/:postId', authController.protect, postController.updatePost)
 // router.delete('/api/posts/:postId', authController.protect, postController.deletePost)
 
-router.post('/api/users/create', authController.createAccount)
-router.post('/api/users/login', authController.login)
+// router.post('/api/users/create', authController.createAccount)
+// router.post('/api/users/login', authController.login)
 
 
 module.exports = router

@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken')
 const { promisify } = require('util')
 const User = require('../models/User')
+const Group = require('../models/Group')
+const { decodeHashId } = require('../lib/hashid')
 
 const signToken = id => jwt.sign({ id }, process.env.JWT_SECRET, {
   expiresIn: process.env.JWT_EXPIRES_IN,
@@ -123,4 +125,19 @@ exports.getUserInfoFromCookie = async (req, res, next) => {
 
   req.user = freshUser
   next()
+}
+
+exports.checkGroupMembership = async (req, res, next) => {
+  if (!req.user) throw new Error('No user found')
+  const objectId = decodeHashId(req.params.groupId)
+  try {
+    const group = await Group.findById(objectId)
+    const userFound = group.members.find(item => item.user.toString() === req.user._id.toString())
+    const isMember = userFound ? userFound.role : false
+    req.user.isMember = isMember
+    next()
+  } catch (e) {
+    return res.json({ status: 'error', message: e.message })
+  }
+
 }

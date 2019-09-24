@@ -13,11 +13,11 @@ exports.createGroup = async (req, res) => {
       }],
     })
   
-    const populated = await group.populate('members.user', 'name').execPopulate()
+    const populatedGroup = await group.populate('members.user', 'name').execPopulate()
   
     res.status(201).json({
       status: 'success',
-      data: populated,
+      group: populatedGroup,
     })
   } catch (e) {
     res.status(500).json({ status: 'error', error: e })
@@ -34,34 +34,34 @@ exports.fetchGroupInfo = async (req, res) => {
   
     if (!group) {
       return res.staus(404).json({
-        status: 'fail',
+        status: 'error',
         message: 'No group found',
       })
     }
   
     res.status(200).json({
       status: 'success',
-      data: group,
+      group,
     })
   } catch (e) {
-    res.status(500).json({ status: 'error', error: e })
+    res.status(500).json({ status: 'error', message: e.message })
   }
 
 }
 
 exports.fetchGroups = async (req, res) => {
   try {
-    // throw new Error('test error')
+    // throw new Error('test error') 
     const groups = await Group.find({ private: false })
     // console.log(groups)
     res.status(200).json({
       status: 'success',
-      data: groups,
+      groups,
     })
   } catch (e) {
     return res.status(500).json({
       status: 'error',
-      error: e,
+      message: e.message,
     })
   }
   

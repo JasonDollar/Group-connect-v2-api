@@ -3,7 +3,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
-const routes = require('./routes')
+
 const groupRoutes = require('./routes/groupRoutes')
 const userRoutes = require('./routes/userRoutes')
 const postRoutes = require('./routes/postRoutes')
@@ -16,6 +16,7 @@ mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
+  useUnifiedTopology: true, 
 })
   .then(() => console.log('DB connected'))
 
@@ -38,9 +39,8 @@ app.use((err, req, res, next) => {
 })
 
 /* apply routes from the "routes" folder */
-app.use('/', routes)
 app.use('/api/groups', groupRoutes)
-app.use('/api/user', userRoutes)
+app.use('/api/users', userRoutes)
 app.use('/api/posts', postRoutes)
 
 app.listen(port, err => {

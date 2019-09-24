@@ -24,9 +24,7 @@ const createAndSendToken = (user, statusCode, res) => {
   res.status(statusCode).json({
     status: 'success',
     token,
-    data: {
-      user,
-    },
+    user,
   })
 }
 
@@ -49,7 +47,7 @@ exports.createAccount = async (req, res) => {
 
 }
 
-exports.login = async (req, res, next) => {
+exports.login = async (req, res) => {
   const { email, password } = req.body
 
   if (!email || !password) {
@@ -73,7 +71,7 @@ exports.login = async (req, res, next) => {
   } catch (e) {
     res.status(500).json({
       status: 'error',
-      error: e,
+      message: e.message,
     })
   }
 }
@@ -90,7 +88,7 @@ exports.protect = async (req, res, next) => {
     return next(new Error('You are not logged in. Please log in to gain access.'))
   }
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
-  const freshUser = await User.findById(decoded.id)
+  const freshUser = await User.findById(decoded.id).select('-__v -createdAt')
 
   if (!freshUser) {
     return next(new Error('The user belonging to this token no longer exists'))
@@ -116,7 +114,7 @@ exports.getUserInfoFromCookie = async (req, res, next) => {
     return next()
   }
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
-  const freshUser = await User.findById(decoded.id)
+  const freshUser = await User.findById(decoded.id).select('-__v -createdAt')
 
   if (!freshUser) {
     req.user = null
@@ -124,20 +122,21 @@ exports.getUserInfoFromCookie = async (req, res, next) => {
   }
 
   req.user = freshUser
-  next()
+  next() 
 }
 
 exports.checkGroupMembership = async (req, res, next) => {
-  if (!req.user) throw new Error('No user found')
-  const objectId = decodeHashId(req.params.groupId)
   try {
-    const group = await Group.findById(objectId)
+    if (!req.user) throw new Error('No user found')
+    const objectId = decodeHashId(req.params.groupId)
+    const group = await Group.findById(objectId).select('members')
+    console.log('group', group)
     const userFound = group.members.find(item => item.user.toString() === req.user._id.toString())
     const isMember = userFound ? userFound.role : false
     req.user.isMember = isMember
     next()
   } catch (e) {
-    res.status(500).json({ status: 'error', error: e })
+    res.status(500).json({ status: 'error', message: e.message })
   }
 
 }

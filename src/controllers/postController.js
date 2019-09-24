@@ -2,61 +2,91 @@ const Post = require('../models/Post')
 const { decodeHashId } = require('../lib/hashid')
 
 exports.fetchSinglePost = async (req, res) => {
-  const post = await Post.findById(req.params.postId)
-  res.status(200).json({
-    status: 'success',
-    data: post,
-  })
+  try { 
+    const post = await Post.findById(req.params.postId)
+    res.status(200).json({
+      status: 'success',
+      post,
+    })
+  } catch (e) { 
+    res.status(500).json({ status: 'error', message: e.message })
+  }
+
 }
 
 exports.createPost = async (req, res) => {
-  const groupId = decodeHashId(req.params.groupId)
-  const post = await new Post({
-    text: req.body.text,
-    createdBy: req.user._id,
-    createdInGroup: groupId,
-  }).save()
+  try { 
+    const groupId = decodeHashId(req.params.groupId)
+    const post = await new Post({
+      text: req.body.text,
+      createdBy: req.user._id,
+      createdInGroup: groupId,
+    }).save()
+  
+    await post.populate('createdBy', 'name').execPopulate()
+  
+    res.status(201).json({
+      status: 'success',
+      post,
+    })
+  } catch (e) {
+    res.status(500).json({ status: 'error', message: e.message })
+  }
 
-  await post.populate('createdBy', 'name').execPopulate()
-
-  res.status(201).json({
-    status: 'success',
-    data: post,
-  })
 }
 
 exports.updatePost = async (req, res) => {
-  const updatedPost = await Post.findOneAndUpdate({ _id: req.params.postId, createdBy: req.user._id }, req.body, { new: true })
+  try { 
+    const updatedPost = await Post.findOneAndUpdate({ _id: req.params.postId, createdBy: req.user._id }, req.body, { new: true })
 
-  res.status(200).json({
-    status: 'success',
-    data: updatedPost,
-  })
+    res.status(200).json({
+      status: 'success',
+      post: updatedPost,
+    })
+  } catch (e) {
+    res.status(500).json({ status: 'error', message: e.message })
+  }
+
 }
 
 exports.deletePost = async (req, res) => {
-  await Post.findOneAndDelete({ _id: req.params.postId, createdBy: req.user._id })
+  try { 
+    await Post.findOneAndDelete({ _id: req.params.postId, createdBy: req.user._id })
 
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  })
+    res.status(204).json({
+      status: 'success',
+      post: null,
+    })
+  } catch (e) {
+    res.status(500).json({ status: 'error', message: e.message })
+  }
+
 }
 
 exports.fetchAllPosts = async (req, res) => {
-  const posts = await Post.find()
-  res.status(200).json({
-    status: 'success',
-    data: posts,
-  })
+  try { 
+    const posts = await Post.find()
+    res.status(200).json({
+      status: 'success',
+      posts,
+    })
+  } catch (e) {
+    res.status(500).json({ status: 'error', message: e.message })
+  }
+
 }
 
 exports.fetchAllGroupPosts = async (req, res) => {
-  const groupId = decodeHashId(req.params.groupId)
+  try { 
+    const groupId = decodeHashId(req.params.groupId)
 
-  const posts = await Post.find({ createdInGroup: groupId }).populate('createdBy', 'name')
-  res.status(200).json({
-    status: 'success',
-    data: posts,
-  })
+    const posts = await Post.find({ createdInGroup: groupId }).populate('createdBy', 'name')
+    res.status(200).json({
+      status: 'success',
+      posts,
+    })
+  } catch (e) {
+    res.status(500).json({ status: 'error', message: e.message })
+  }
+
 }

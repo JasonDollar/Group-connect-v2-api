@@ -17,6 +17,12 @@ exports.fetchSinglePost = async (req, res) => {
 exports.createPost = async (req, res) => {
   try { 
     const groupId = decodeHashId(req.params.groupId)
+    if (!groupId) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Provided ID is wrong',
+      })
+    }
     const post = await new Post({
       text: req.body.text,
       createdBy: req.user._id,
@@ -79,6 +85,12 @@ exports.fetchAllPosts = async (req, res) => {
 exports.fetchAllGroupPosts = async (req, res) => {
   try { 
     const groupId = decodeHashId(req.params.groupId)
+    if (!groupId) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Provided ID is wrong',
+      })
+    }
 
     const posts = await Post.find({ createdInGroup: groupId }).populate('createdBy', 'name')
     res.status(200).json({

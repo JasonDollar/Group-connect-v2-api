@@ -129,6 +129,12 @@ exports.checkGroupMembership = async (req, res, next) => {
   try {
     if (!req.user) throw new Error('No user found')
     const objectId = decodeHashId(req.params.groupId)
+    if (!objectId) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Provided ID is wrong',
+      })
+    }
     const group = await Group.findById(objectId).select('members')
     console.log('group', group)
     const userFound = group.members.find(item => item.user.toString() === req.user._id.toString())

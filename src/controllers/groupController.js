@@ -20,28 +20,34 @@ exports.createGroup = async (req, res) => {
       group: populatedGroup,
     })
   } catch (e) {
-    res.status(500).json({ status: 'error', error: e })
+    res.status(500).json({ status: 'error', message: e.message })
   }
 
 }
 
 exports.fetchGroupInfo = async (req, res) => {
   try {
-    
     const groupId = decodeHashId(req.params.groupId)
-    // console.log(groupId)
-    const group = await Group.findOne({ _id: groupId }).populate('createdBy', 'name')
+    if (!groupId) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Provided ID is wrong',
+      })
+    }
+    const group = await Group.findOne({ _id: groupId }).select('-__v')
+
   
     if (!group) {
-      return res.staus(404).json({
+      return res.status(404).json({
         status: 'error',
         message: 'No group found',
       })
     }
+    const groupPopulated = await group.populate('createdBy', 'name').execPopulate()
   
     res.status(200).json({
       status: 'success',
-      group,
+      group: groupPopulated,
     })
   } catch (e) {
     res.status(500).json({ status: 'error', message: e.message })

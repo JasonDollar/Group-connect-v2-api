@@ -1,7 +1,7 @@
 const express = require('express')
 const groupController = require('../controllers/groupController')
 const authController = require('../controllers/authController')
-// const postController = require('../controllers/postController')
+const postController = require('../controllers/postController')
 
 const router = express.Router()
 
@@ -9,6 +9,7 @@ router.get('/', groupController.fetchGroups)
 router.post('/', authController.protect, groupController.createGroup)
 
 router.get('/:groupId', authController.getUserInfoFromCookie, groupController.fetchGroupInfo)
+router.get('/:groupId/posts', postController.fetchAllGroupPosts)
 
 // router.get('/:slug', groupController.fetchGroupInfoFromSlug)
 // router.patch('/:groupId', groupController.updateGroupInfo)

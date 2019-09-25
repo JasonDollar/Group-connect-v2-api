@@ -44,14 +44,18 @@ const groupSchema = new mongoose.Schema({
       },
     },
   ],
+  membersLength: {
+    type: Number,
+    default: 1,
+  },
 }, {
   toJSON: { virtuals: true }, // when data is outputted it should use virtual fields
   toObject: { virtuals: true },
 })
 
-groupSchema.virtual('membersLength').get(function () {
-  return this.members ? this.members.length : undefined
-})
+// groupSchema.virtual('membersLength').get(function () {
+//   return this.members ? this.members.length : undefined
+// })
 
 groupSchema.pre(/^find/, function (next) {
   this.populate({
@@ -71,6 +75,12 @@ groupSchema.pre('save', function (next) {
 groupSchema.pre('save', function (next) {
   const hashed = encodeHashId(this._id)
   this.hashid = hashed
+  next()
+})
+
+groupSchema.pre('save', function (next) {
+  const membersLength = this.members.length
+  this.membersLength = membersLength
   next()
 })
 

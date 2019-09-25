@@ -58,7 +58,7 @@ exports.fetchGroupInfo = async (req, res) => {
 exports.fetchGroups = async (req, res) => {
   try {
     // throw new Error('test error') 
-    const groups = await Group.find({ private: false })
+    const groups = await Group.find({ private: false }).select('_id name slug hashid membersLength')
     // console.log(groups)
     res.status(200).json({
       status: 'success',

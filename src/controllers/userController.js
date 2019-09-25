@@ -2,7 +2,9 @@ const User = require('../models/User')
 const Group = require('../models/Group')
 
 exports.getLoggedInUserInfo = async (req, res) => {
-  // const user = User.findById(req.user._id)
+
+  // await req.user.populate('posts').execPopulate()
+
   res.status(200).json({
     status: 'success',
     user: req.user,

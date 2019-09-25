@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const postSchema = new mongoose.Schema({
+const commentSchema = new mongoose.Schema({
   text: {
     type: String,
     required: [true, 'Post content is required'],
@@ -12,18 +12,18 @@ const postSchema = new mongoose.Schema({
   createdBy: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
-    required: [true, 'Post must belong to an user'],
+    required: [true, 'Comment must belong to an user'],
   },
-  createdInGroup: {
+  createdInPost: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Group',
-    required: [true, 'Post must belong to a group'],
+    ref: 'Post',
+    required: [true, 'Comment must belong to a post'],
   },
 }, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 })
 
-const Post = mongoose.model('Post', postSchema)
+const Comment = mongoose.model('Comment', commentSchema)
 
-module.exports = Post
+module.exports = Comment

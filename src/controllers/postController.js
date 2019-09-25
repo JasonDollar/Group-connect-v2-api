@@ -85,6 +85,7 @@ exports.fetchAllPosts = async (req, res) => {
 exports.fetchAllGroupPosts = async (req, res) => {
   try { 
     const groupId = decodeHashId(req.params.groupId)
+    console.log(req.params.groupId, groupId)
     if (!groupId) {
       return res.status(404).json({
         status: 'error',

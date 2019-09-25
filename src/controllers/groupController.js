@@ -72,3 +72,39 @@ exports.fetchGroups = async (req, res) => {
   }
   
 }
+
+exports.joinGroup = async (req, res) => {
+  try {
+    const groupId = decodeHashId(req.params.groupId)
+    if (!groupId) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Provided ID is wrong',
+      })
+    }
+    if (req.user.isMember) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'You are a member already',
+      })
+    }
+    const group = await Group.findById(groupId)
+    group.members.push({
+      user: req.user._id,
+      role: 'user',
+    })
+    const savedGroup = await group.save()
+    console.log(savedGroup)
+    
+
+    res.status(200).json({
+      status: 'success',
+      group: savedGroup,
+    })
+  } catch (e) {
+    return res.status(500).json({
+      status: 'error',
+      message: e.message,
+    })
+  }
+}

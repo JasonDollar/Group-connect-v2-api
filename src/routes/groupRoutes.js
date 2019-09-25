@@ -9,7 +9,10 @@ router.get('/', groupController.fetchGroups)
 router.post('/', authController.protect, groupController.createGroup)
 
 router.get('/:groupId', authController.getUserInfoFromCookie, groupController.fetchGroupInfo)
+router.post('/:groupId/join', authController.protect, authController.checkGroupMembership, groupController.joinGroup)
+
 router.get('/:groupId/posts', postController.fetchAllGroupPosts)
+
 
 // router.get('/:slug', groupController.fetchGroupInfoFromSlug)
 // router.patch('/:groupId', groupController.updateGroupInfo)

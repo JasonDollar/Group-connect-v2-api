@@ -15,9 +15,11 @@ router.post(
 )
 
 router.get('/:groupId/:postId', postController.fetchSinglePost)
+
 router.post(
   '/:groupId/:postId/createComment', 
   authController.protect, 
+  authController.checkGroupMembership, 
   commentController.createComment,
 )
 

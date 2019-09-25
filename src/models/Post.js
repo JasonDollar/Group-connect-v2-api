@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+// const Comment = require('./Comment')
 
 const postSchema = new mongoose.Schema({
   text: {
@@ -23,6 +24,12 @@ const postSchema = new mongoose.Schema({
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 })
+
+// postSchema.virtual('commentsLength').get(async function () {
+//   const count = await Comment.countDocuments({ createdInPost: this._id })
+//   console.log(count)
+//   return count
+// })
 
 const Post = mongoose.model('Post', postSchema)
 

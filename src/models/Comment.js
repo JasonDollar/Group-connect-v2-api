@@ -22,6 +22,7 @@ const commentSchema = new mongoose.Schema({
 }, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
+  timestamps: true,
 })
 
 const Comment = mongoose.model('Comment', commentSchema)

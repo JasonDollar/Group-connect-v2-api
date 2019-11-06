@@ -20,16 +20,23 @@ const postSchema = new mongoose.Schema({
     ref: 'Group',
     required: [true, 'Post must belong to a group'],
   },
+  comments: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Comment',
+    },
+  ],
+
 }, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
+  timestamps: true,
 })
 
-// postSchema.virtual('commentsLength').get(async function () {
-//   const count = await Comment.countDocuments({ createdInPost: this._id })
-//   console.log(count)
-//   return count
-// })
+postSchema.pre(/^find/, function (next) {
+  this.populate('createdBy', '_id name')
+  this.populate('comments.createdBy', '_id name')
+})
 
 const Post = mongoose.model('Post', postSchema)
 

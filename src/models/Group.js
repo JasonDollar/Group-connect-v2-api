@@ -3,8 +3,6 @@ const slugify = require('slugify')
 const crypto = require('crypto')
 const { encodeHashId } = require('../lib/hashid')
 
-// mongoose.plugin(slug)
-
 const groupSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -48,9 +46,16 @@ const groupSchema = new mongoose.Schema({
     type: Number,
     default: 1,
   },
+  posts: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Post',
+    },
+  ],
 }, {
   toJSON: { virtuals: true }, // when data is outputted it should use virtual fields
   toObject: { virtuals: true },
+  timestamps: true,
 })
 
 // groupSchema.virtual('membersLength').get(function () {

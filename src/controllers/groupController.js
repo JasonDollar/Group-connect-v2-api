@@ -94,7 +94,7 @@ exports.joinGroup = async (req, res) => {
       role: 'user',
     })
     const savedGroup = await group.save()
-    console.log(savedGroup)
+    // console.log(savedGroup)
     
 
     res.status(200).json({

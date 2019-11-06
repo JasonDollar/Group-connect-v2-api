@@ -28,7 +28,7 @@ exports.createComment = async (req, res) => {
     // update comments array in Post
     await Post.updateOne(
       { _id: req.params.postId, createdInGroup: groupId }, 
-      { $push: { comments: comment._id } },
+      { $push: { comments: comment._id }, $inc: { commentsLength: +1 } },
     )
   
     await comment.populate('createdBy', 'name').execPopulate()

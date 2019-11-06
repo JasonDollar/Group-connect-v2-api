@@ -1,4 +1,5 @@
 const Post = require('../models/Post')
+const Group = require('../models/Group')
 const { decodeHashId } = require('../lib/hashid')
 
 exports.fetchSinglePost = async (req, res) => {
@@ -28,6 +29,11 @@ exports.createPost = async (req, res) => {
       createdBy: req.user._id,
       createdInGroup: groupId,
     }).save()
+
+    await Group.updateOne(
+      { _id: groupId }, 
+      { $push: { posts: post._id } },
+    )
   
     await post.populate('createdBy', 'name').execPopulate()
   
@@ -85,7 +91,7 @@ exports.fetchAllPosts = async (req, res) => {
 exports.fetchAllGroupPosts = async (req, res) => {
   try { 
     const groupId = decodeHashId(req.params.groupId)
-    console.log(req.params.groupId, groupId)
+    // console.log(req.params.groupId, groupId)
     if (!groupId) {
       return res.status(404).json({
         status: 'error',
@@ -93,7 +99,7 @@ exports.fetchAllGroupPosts = async (req, res) => {
       })
     }
 
-    const posts = await Post.find({ createdInGroup: groupId }).populate('createdBy', 'name')
+    const posts = await Post.find({ createdInGroup: groupId }).populate('createdBy', 'name').select('-comments')
     res.status(200).json({
       status: 'success',
       posts,

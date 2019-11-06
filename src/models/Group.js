@@ -67,6 +67,14 @@ groupSchema.pre(/^find/, function (next) {
     path: 'createdBy',
     select: '-__v -password -createdAt',
   })
+  // this.populate({
+  //   path: 'posts',
+  //   select: '_id text',
+  // })
+  // this.populate({
+  //   path: 'posts.createdBy',
+  //   select: '_id name',
+  // })
   next()
 })
 

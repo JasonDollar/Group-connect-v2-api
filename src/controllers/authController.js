@@ -136,7 +136,7 @@ exports.checkGroupMembership = async (req, res, next) => {
       })
     }
     const group = await Group.findById(objectId).select('members')
-    console.log('group', group)
+    // console.log('group', group)
     const userFound = group.members.find(item => item.user.toString() === req.user._id.toString())
     const isMember = userFound ? userFound.role : false
     req.user.isMember = isMember

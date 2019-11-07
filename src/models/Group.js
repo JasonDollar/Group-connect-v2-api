@@ -16,10 +16,10 @@ const groupSchema = new mongoose.Schema({
     unique: true,
   },
   hashid: String,
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
+  // createdAt: {
+  //   type: Date,
+  //   default: Date.now(),
+  // },
   createdBy: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
@@ -96,6 +96,8 @@ groupSchema.pre('save', function (next) {
   this.membersLength = membersLength
   next()
 })
+
+groupSchema.index({ hashid: 1 })
 
 const Group = mongoose.model('Group', groupSchema)
 

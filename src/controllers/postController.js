@@ -89,15 +89,15 @@ exports.fetchAllPosts = async (req, res) => {
 }
 
 exports.fetchAllGroupPosts = async (req, res) => {
+  const { groupId } = req.params
+  // console.log(req.params.groupId, groupId)
+  if (!groupId) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Provided ID is wrong',
+    })
+  }
   try { 
-    const groupId = decodeHashId(req.params.groupId)
-    // console.log(req.params.groupId, groupId)
-    if (!groupId) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Provided ID is wrong',
-      })
-    }
 
     const posts = await Post.find({ createdInGroup: groupId }).populate('createdBy', 'name').select('-comments')
     res.status(200).json({

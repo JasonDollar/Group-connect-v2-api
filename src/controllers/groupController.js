@@ -34,7 +34,7 @@ exports.fetchGroupInfo = async (req, res) => {
         message: 'Provided ID is wrong',
       })
     }
-    const group = await Group.findOne({ _id: groupId }).select('-__v')
+    const group = await Group.findOne({ _id: groupId }).populate('createdBy').populate('posts').select('-__v')
 
   
     if (!group) {
@@ -43,11 +43,11 @@ exports.fetchGroupInfo = async (req, res) => {
         message: 'No group found',
       })
     }
-    const groupPopulated = await group.populate('createdBy', 'name').execPopulate()
+    // const groupPopulated = await group.populate('createdBy', 'name').execPopulate()
   
     res.status(200).json({
       status: 'success',
-      group: groupPopulated,
+      group,
     })
   } catch (e) {
     res.status(500).json({ status: 'error', message: e.message })

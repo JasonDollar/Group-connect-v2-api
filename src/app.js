@@ -3,6 +3,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
+let morgan = require('morgan')
 
 const groupRoutes = require('./routes/groupRoutes')
 const userRoutes = require('./routes/userRoutes')
@@ -25,6 +26,9 @@ mongoose.connection.on('error', err => {
 })
 
 const app = express()
+if (dev) {
+  app.use(morgan('combined'))
+}
 app.use(cors({
   origin: dev ? 'http://localhost:7777' : process.env.PRODUCTION_URL,
   credentials: true,

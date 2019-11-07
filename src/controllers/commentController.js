@@ -1,17 +1,12 @@
 const Comment = require('../models/Comment')
 const Post = require('../models/Post')
-const { decodeHashId } = require('../lib/hashid')
+// const { decodeHashId } = require('../lib/hashid')
 
 exports.createComment = async (req, res) => {
+  const { postId } = req.params
   try { 
-    const groupId = decodeHashId(req.params.groupId)
-    if (!groupId) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Provided ID is wrong',
-      })
-    }
-    const postExists = await Post.exists({ _id: req.params.postId, createdInGroup: groupId })
+
+    const postExists = await Post.exists({ _id: postId })
     if (!postExists) {
       return res.status(404).json({
         status: 'error',
@@ -22,16 +17,16 @@ exports.createComment = async (req, res) => {
     const comment = await new Comment({
       text: req.body.text,
       createdBy: req.user._id,
-      createdInPost: req.params.postId,
+      createdInPost: postId,
     }).save()
 
     // update comments array in Post
     await Post.updateOne(
-      { _id: req.params.postId, createdInGroup: groupId }, 
+      { _id: postId }, 
       { $push: { comments: comment._id }, $inc: { commentsLength: +1 } },
     )
   
-    await comment.populate('createdBy', 'name').execPopulate()
+    await comment.populate('createdBy', 'name avatar').execPopulate()
     
     res.status(201).json({
       status: 'success',

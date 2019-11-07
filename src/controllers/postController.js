@@ -1,10 +1,17 @@
 const Post = require('../models/Post')
 const Group = require('../models/Group')
-const { decodeHashId } = require('../lib/hashid')
+// const { decodeHashId } = require('../lib/hashid')
 
 exports.fetchSinglePost = async (req, res) => {
+  const { groupId, postId } = req.params
   try { 
-    const post = await Post.findById(req.params.postId)
+    // chcek if post is in public group, or private, but with user as a member
+    const groupIsPublic = await Group.exists({ hashid: groupId, private: false })
+    if (!groupIsPublic && !req.user.isMember) {
+      return res.status(401).json({ status: 'error', message: 'You\'re not authorized' })
+    }
+    
+    const post = await Post.findById(postId)
     res.status(200).json({
       status: 'success',
       post,
@@ -16,22 +23,23 @@ exports.fetchSinglePost = async (req, res) => {
 }
 
 exports.createPost = async (req, res) => {
-  try { 
-    const groupId = decodeHashId(req.params.groupId)
-    if (!groupId) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Provided ID is wrong',
-      })
-    }
+
+  const { groupId } = req.params
+  if (!groupId) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Provided ID is wrong',
+    })
+  }
+  try {
+
     const post = await new Post({
       text: req.body.text,
       createdBy: req.user._id,
-      createdInGroup: groupId,
     }).save()
 
     await Group.updateOne(
-      { _id: groupId }, 
+      { hashid: groupId }, 
       { $push: { posts: post._id } },
     )
   
@@ -49,7 +57,7 @@ exports.createPost = async (req, res) => {
 
 exports.updatePost = async (req, res) => {
   try { 
-    const updatedPost = await Post.findOneAndUpdate({ _id: req.params.postId, createdBy: req.user._id }, req.body, { new: true })
+    const updatedPost = await Post.findOneAndUpdate({ hashid: req.params.postId, createdBy: req.user._id }, req.body, { new: true })
 
     res.status(200).json({
       status: 'success',
@@ -63,7 +71,7 @@ exports.updatePost = async (req, res) => {
 
 exports.deletePost = async (req, res) => {
   try { 
-    await Post.findOneAndDelete({ _id: req.params.postId, createdBy: req.user._id })
+    await Post.findOneAndDelete({ hashid: req.params.postId, createdBy: req.user._id })
 
     res.status(204).json({
       status: 'success',
@@ -99,10 +107,10 @@ exports.fetchAllGroupPosts = async (req, res) => {
   }
   try { 
 
-    const posts = await Post.find({ createdInGroup: groupId }).populate('createdBy', 'name').select('-comments')
+    const group = await Group.findOne({ hashid: groupId }).populate('posts').select('posts')
     res.status(200).json({
       status: 'success',
-      posts,
+      posts: group.posts,
     })
   } catch (e) {
     res.status(500).json({ status: 'error', message: e.message })

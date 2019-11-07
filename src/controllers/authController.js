@@ -2,8 +2,8 @@ const jwt = require('jsonwebtoken')
 const { promisify } = require('util')
 const User = require('../models/User')
 const Group = require('../models/Group')
-const { decodeHashId } = require('../lib/hashid')
-const { signToken, createAndSendToken } = require('../lib/jwtTokenHelpers')
+
+const { createAndSendToken } = require('../lib/jwtTokenHelpers')
 
 
 exports.createAccount = async (req, res) => {
@@ -80,7 +80,7 @@ exports.protect = async (req, res, next) => {
 // it is like protect but only collects user info if available, no guarding
 exports.getUserInfoFromCookie = async (req, res, next) => {
   let token
-  // console.log({ cookies: req.cookies })
+  
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1]
   } else if (req.cookies.jwt) {
@@ -105,15 +105,20 @@ exports.getUserInfoFromCookie = async (req, res, next) => {
 
 exports.checkGroupMembership = async (req, res, next) => {
   try {
-    if (!req.user) throw new Error('No user found')
-    const objectId = decodeHashId(req.params.groupId)
-    if (!objectId) {
+    // req.user.isMember = false
+    // let isMember = false
+    if (!req.user) {
+      req.user = { isMember: false }
+      return next()
+    }
+    const { groupId } = req.params
+    if (!groupId) {
       return res.status(404).json({
         status: 'error',
         message: 'Provided ID is wrong',
       })
     }
-    const group = await Group.findById(objectId).select('members')
+    const group = await Group.findOne({ hashid: groupId }).select('members')
     // console.log('group', group)
     const userFound = group.members.find(item => item.user.toString() === req.user._id.toString())
     const isMember = userFound ? userFound.role : false

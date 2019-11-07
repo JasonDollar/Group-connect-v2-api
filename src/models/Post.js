@@ -15,11 +15,6 @@ const postSchema = new mongoose.Schema({
     ref: 'User',
     required: [true, 'Post must belong to an user'],
   },
-  createdInGroup: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Group',
-    required: [true, 'Post must belong to a group'],
-  },
   comments: [
     {
       type: mongoose.Schema.ObjectId,

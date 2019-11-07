@@ -14,7 +14,7 @@ exports.createGroup = async (req, res) => {
       }],
     })
   
-    const populatedGroup = await group.populate('members.user', 'name').execPopulate()
+    const populatedGroup = await group.populate('members.user', 'name avatar').execPopulate()
   
     res.status(201).json({
       status: 'success',
@@ -84,7 +84,7 @@ exports.joinGroup = async (req, res) => {
     })
   }
   if (req.user.isMember) {
-    return res.status(401).json({
+    return res.status(403).json({
       status: 'error',
       message: 'You are a member already',
     })

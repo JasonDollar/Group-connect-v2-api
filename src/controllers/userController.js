@@ -15,7 +15,7 @@ exports.getGroupsWithUserMembership = async (req, res) => {
   try {
     const groups = await Group.find({
       'members.user': req.user._id,
-    }).select('-members -__v -private -createdAt -createdBy ')
+    }).select('-members -__v -private -createdAt -updatedAt -posts -membersLength -createdBy ')
 
     res.status(200).json({
       status: 'success',

@@ -5,8 +5,9 @@ const postController = require('../controllers/postController')
 
 const router = express.Router()
 
-router.get('/', groupController.fetchGroups)
-router.post('/', authController.protect, groupController.createGroup)
+router.route('/')
+  .get(groupController.fetchGroups)
+  .post(authController.protect, groupController.createGroup)
 
 router.get('/:groupId', authController.getUserInfoFromCookie, groupController.fetchGroupInfo)
 router.post('/:groupId/join', authController.protect, authController.checkGroupMembership, groupController.joinGroup)

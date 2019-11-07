@@ -27,14 +27,14 @@ exports.createGroup = async (req, res) => {
 
 exports.fetchGroupInfo = async (req, res) => {
   try {
-    const groupId = decodeHashId(req.params.groupId)
+    const { groupId } = req.params
     if (!groupId) {
       return res.status(404).json({
         status: 'error',
         message: 'Provided ID is wrong',
       })
     }
-    const group = await Group.findOne({ _id: groupId }).populate('createdBy').populate('posts').select('-__v')
+    const group = await Group.findOne({ hashid: groupId }).populate('createdBy').populate('posts').select('-__v')
 
   
     if (!group) {

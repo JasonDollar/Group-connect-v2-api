@@ -26,7 +26,7 @@ mongoose.connection.on('error', err => {
 
 const app = express()
 app.use(cors({
-  origin: 'http://localhost:7777',
+  origin: dev ? 'http://localhost:7777' : process.env.PRODUCTION_URL,
   credentials: true,
 }))
 
@@ -39,9 +39,9 @@ app.use((err, req, res, next) => {
 })
 
 /* apply routes from the "routes" folder */
-app.use('/api/groups', groupRoutes)
-app.use('/api/users', userRoutes)
-app.use('/api/posts', postRoutes)
+app.use('/api/v_1/groups', groupRoutes)
+app.use('/api/v_1/users', userRoutes)
+app.use('/api/v_1/posts', postRoutes)
 
 app.listen(port, err => {
   if (err) throw err

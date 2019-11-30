@@ -80,44 +80,50 @@ exports.protect = async (req, res, next) => {
     req.user = freshUser
     next()
   } catch (e) {
-    res.status(401).send(e.message)
+    res.status(401).json({
+      status: 'error',
+      message: e.message,
+    })
   }
 }
 
 
 // it is like protect but only collects user info if available, no guarding
 exports.getUserInfoFromCookie = async (req, res, next) => {
-  try {
-    let token
+  // try {
+  let token
   
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      token = req.headers.authorization.split(' ')[1]
-    } else if (req.cookies.jwt) {
-      token = req.cookies.jwt
-    }
-  
-    if (!token) {
-      req.user = null
-      return next()
-    }
-    
-    const decoded = jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
-      if (err) throw new Error('Invalid token')
-      return decodedToken
-    })
-    
-    const freshUser = await User.findById(decoded.id).select('-__v -createdAt')
-  
-    if (!freshUser) {
-      req.user = null
-      return next()
-    }
-  
-    req.user = freshUser
-    next() 
-  } catch (e) {
-    res.status(401).send(e.message)
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1]
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt
   }
+  
+  if (!token) {
+    req.user = null
+    return next()
+  }
+    
+  const decoded = jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
+    if (err) {
+      req.user = null
+      return next()
+    }
+    return decodedToken
+  })
+    
+  const freshUser = await User.findById(decoded.id).select('-__v -createdAt')
+  
+  if (!freshUser) {
+    req.user = null
+    return next()
+  }
+  
+  req.user = freshUser
+  next() 
+  // } catch (e) {
+  //   res.status(401).send(e.message)
+  // }
 
 }
 

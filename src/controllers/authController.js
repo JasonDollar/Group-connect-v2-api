@@ -55,52 +55,70 @@ exports.login = async (req, res) => {
 }
 
 exports.protect = async (req, res, next) => {
-  let token
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1]
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt
-  }
+  try {
+    let token
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1]
+    } else if (req.cookies.jwt) {
+      token = req.cookies.jwt
+    }
 
-  if (!token) {
-    return next(new Error('You are not logged in. Please log in to gain access.'))
-  }
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
-  const freshUser = await User.findById(decoded.id).select('-__v -createdAt')
+    if (!token) {
+      throw new Error('You are not logged in. Please log in to gain access.')
+    }
 
-  if (!freshUser) {
-    return next(new Error('The user belonging to this token no longer exists'))
-  }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
+      if (err) throw new Error('Invalid token')
+      return decodedToken
+    })
+    const freshUser = await User.findById(decoded.id).select('-__v -createdAt')
 
-  req.user = freshUser
-  next()
+    if (!freshUser) {
+      throw new Error('The user belonging to this token no longer exists')
+    }
+
+    req.user = freshUser
+    next()
+  } catch (e) {
+    res.status(401).send(e.message)
+  }
 }
 
 
 // it is like protect but only collects user info if available, no guarding
 exports.getUserInfoFromCookie = async (req, res, next) => {
-  let token
+  try {
+    let token
   
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1]
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1]
+    } else if (req.cookies.jwt) {
+      token = req.cookies.jwt
+    }
+  
+    if (!token) {
+      req.user = null
+      return next()
+    }
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
+      if (err) throw new Error('Invalid token')
+      return decodedToken
+    })
+    
+    const freshUser = await User.findById(decoded.id).select('-__v -createdAt')
+  
+    if (!freshUser) {
+      req.user = null
+      return next()
+    }
+  
+    req.user = freshUser
+    next() 
+  } catch (e) {
+    res.status(401).send(e.message)
   }
 
-  if (!token) {
-    req.user = null
-    return next()
-  }
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
-  const freshUser = await User.findById(decoded.id).select('-__v -createdAt')
-
-  if (!freshUser) {
-    req.user = null
-    return next()
-  }
-
-  req.user = freshUser
-  next() 
 }
 
 exports.checkGroupMembership = async (req, res, next) => {

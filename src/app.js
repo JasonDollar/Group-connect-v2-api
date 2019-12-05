@@ -1,6 +1,8 @@
 require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
+const mongooseValidationErrorTransform = require('mongoose-validation-error-transform')
+
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
 let morgan = require('morgan')
@@ -23,6 +25,26 @@ mongoose.connect(process.env.MONGO_URI, {
 
 mongoose.connection.on('error', err => {
   console.log(`DB connection error: ${err.message}`)
+})
+
+mongoose.plugin(mongooseValidationErrorTransform, {
+ 
+  //
+  // these are the default options you can override
+  // (you don't need to specify this object otherwise)
+  //
+ 
+  // should we capitalize the first letter of the message?
+  capitalize: true,
+ 
+  // should we convert `full_name` => `Full name`?
+  humanize: true,
+ 
+  // how should we join together multiple validation errors?
+  transform(messages) {
+    return messages.join(', ')
+  },
+ 
 })
 
 const app = express()

@@ -6,15 +6,28 @@ exports.fetchSinglePost = async (req, res) => {
   const { groupId, postId } = req.params
   try { 
     // chcek if post is in public group, or private, but with user as a member
-    const groupIsPublic = await Group.exists({ hashid: groupId, private: false })
-    if (!groupIsPublic && !req.user.isMember) {
+    const group = await Group.findOne({ hashid: groupId })
+    console.log(group)
+    if (!group.private && req.user.isMember) {
       return res.status(401).json({ status: 'error', message: 'You\'re not authorized' })
     }
     
     const post = await Post.findById(postId)
+
+    if (!post) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'No posts found with that id',
+      })
+    }
     res.status(200).json({
       status: 'success',
       post,
+      createdInGroup: {
+        hashid: group.hashid,
+        name: group.name,
+        _id: group._id,
+      }, 
     })
   } catch (e) { 
     res.status(500).json({ status: 'error', message: e.message })

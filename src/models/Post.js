@@ -33,7 +33,7 @@ const postSchema = new mongoose.Schema({
 
 postSchema.pre(/^find/, function (next) {
   // this.select('-__v')
-  this.populate('createdBy', '_id name')
+  this.populate('createdBy', '_id name slug')
   this.populate('comments', '-__v -createdInPost')
   next()
 })

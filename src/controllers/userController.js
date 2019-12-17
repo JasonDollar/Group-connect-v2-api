@@ -26,3 +26,28 @@ exports.getGroupsWithUserMembership = async (req, res) => {
   }
 
 }
+
+exports.getUserInfo = async (req, res) => {
+  try {
+    const user = await User.findOne({ slug: req.params.username }).select('-__v -email')
+
+    const groups = await Group.find({
+      $and: [
+        { members: { $elemMatch: { user: user._id } } },
+        { private: false },
+
+      ],
+    }).select('-members -__v -private -createdAt -updatedAt -posts -membersLength -createdBy ')
+
+    res.status(200).json({
+      status: 'success',
+      user: {
+        ...user.toObject(),
+        groupsMember: groups,
+      },
+    })
+
+  } catch (e) {
+    res.status(500).json({ status: 'error', error: e.message })
+  }
+}

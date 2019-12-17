@@ -1,12 +1,15 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
+const slugify = require('slugify')
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
+    unique: [true, 'There is already a member with that username'],
     required: [true, 'User must have a name'],
   },
+  slug: String,
   email: {
     type: String,
     trim: true,
@@ -32,7 +35,7 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    default: 'user.png',
+    default: '',
   },
   createdAt: {
     type: Date,
@@ -54,6 +57,13 @@ userSchema.virtual('posts', {
   foreignField: 'createdBy',
 })
 
+
+userSchema.pre('save', function (next) {
+  const slug = slugify(this.name)
+  this.slug = slug
+  next()
+})
+
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next()
 
@@ -66,6 +76,8 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword)
 }
+
+userSchema.index({ slug: 1 })
 
 const User = mongoose.model('User', userSchema)
 

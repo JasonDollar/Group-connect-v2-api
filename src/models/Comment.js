@@ -26,7 +26,7 @@ const commentSchema = new mongoose.Schema({
 })
 
 commentSchema.pre(/^find/, function (next) {
-  this.populate('createdBy', '_id name')
+  this.populate('createdBy', '_id name slug')
   next()
 })
 

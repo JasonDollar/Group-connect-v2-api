@@ -1,11 +1,9 @@
 const Comment = require('../models/Comment')
 const Post = require('../models/Post')
-// const { decodeHashId } = require('../lib/hashid')
 
 exports.createComment = async (req, res) => {
   const { postId } = req.params
   try { 
-
     const postExists = await Post.exists({ _id: postId })
     if (!postExists) {
       return res.status(404).json({
@@ -26,7 +24,7 @@ exports.createComment = async (req, res) => {
       { $push: { comments: comment._id }, $inc: { commentsLength: +1 } },
     )
   
-    await comment.populate('createdBy', 'name avatar').execPopulate()
+    await comment.populate('createdBy', 'name avatar slug').execPopulate()
     
     res.status(201).json({
       status: 'success',
@@ -35,5 +33,4 @@ exports.createComment = async (req, res) => {
   } catch (e) {
     res.status(500).json({ status: 'error', message: e.message })
   }
-
 }

@@ -7,7 +7,7 @@ exports.fetchSinglePost = async (req, res) => {
   try { 
     // chcek if post is in public group, or private, but with user as a member
     const group = await Group.findOne({ hashid: groupId })
-    console.log(group)
+
     if (!group.private && req.user.isMember) {
       return res.status(401).json({ status: 'error', message: 'You\'re not authorized' })
     }
@@ -32,11 +32,9 @@ exports.fetchSinglePost = async (req, res) => {
   } catch (e) { 
     res.status(500).json({ status: 'error', message: e.message })
   }
-
 }
 
 exports.createPost = async (req, res) => {
-
   const { groupId } = req.params
   if (!groupId) {
     return res.status(404).json({
@@ -44,8 +42,8 @@ exports.createPost = async (req, res) => {
       message: 'Provided ID is wrong',
     })
   }
-  try {
 
+  try {
     const post = await new Post({
       text: req.body.text,
       createdBy: req.user._id,
@@ -65,7 +63,6 @@ exports.createPost = async (req, res) => {
   } catch (e) {
     res.status(500).json({ status: 'error', message: e.message })
   }
-
 }
 
 exports.updatePost = async (req, res) => {
@@ -79,7 +76,6 @@ exports.updatePost = async (req, res) => {
   } catch (e) {
     res.status(500).json({ status: 'error', message: e.message })
   }
-
 }
 
 exports.deletePost = async (req, res) => {
@@ -93,7 +89,6 @@ exports.deletePost = async (req, res) => {
   } catch (e) {
     res.status(500).json({ status: 'error', message: e.message })
   }
-
 }
 
 exports.fetchAllPosts = async (req, res) => {
@@ -106,20 +101,18 @@ exports.fetchAllPosts = async (req, res) => {
   } catch (e) {
     res.status(500).json({ status: 'error', message: e.message })
   }
-
 }
 
 exports.fetchAllGroupPosts = async (req, res) => {
   const { groupId } = req.params
-  // console.log(req.params.groupId, groupId)
   if (!groupId) {
     return res.status(404).json({
       status: 'error',
       message: 'Provided ID is wrong',
     })
   }
-  try { 
 
+  try { 
     const group = await Group.findOne({ hashid: groupId }).populate('posts').select('posts')
     res.status(200).json({
       status: 'success',
@@ -128,5 +121,4 @@ exports.fetchAllGroupPosts = async (req, res) => {
   } catch (e) {
     res.status(500).json({ status: 'error', message: e.message })
   }
-
 }

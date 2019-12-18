@@ -1,15 +1,10 @@
 const mongoose = require('mongoose')
-// const Comment = require('./Comment')
 
 const postSchema = new mongoose.Schema({
   text: {
     type: String,
     required: [true, 'Post content is required'],
   },
-  // createdAt: {
-  //   type: Date,
-  //   default: Date.now(),
-  // },
   createdBy: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
@@ -32,7 +27,6 @@ const postSchema = new mongoose.Schema({
 })
 
 postSchema.pre(/^find/, function (next) {
-  // this.select('-__v')
   this.populate('createdBy', '_id name slug')
   this.populate('comments', '-__v -createdInPost')
   next()

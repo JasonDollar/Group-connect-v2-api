@@ -2,9 +2,6 @@ const User = require('../models/User')
 const Group = require('../models/Group')
 
 exports.getLoggedInUserInfo = async (req, res) => {
-
-  // await req.user.populate('posts').execPopulate()
-
   res.status(200).json({
     status: 'success',
     user: req.user,
@@ -22,9 +19,8 @@ exports.getGroupsWithUserMembership = async (req, res) => {
       groups,
     })
   } catch (e) {
-    res.status(500).json({ status: 'error', error: e.message })
+    res.status(500).json({ status: 'error', message: e.message })
   }
-
 }
 
 exports.getUserInfo = async (req, res) => {
@@ -35,7 +31,6 @@ exports.getUserInfo = async (req, res) => {
       $and: [
         { members: { $elemMatch: { user: user._id } } },
         { private: false },
-
       ],
     }).select('-members -__v -private -createdAt -updatedAt -posts -membersLength -createdBy ')
 
@@ -48,6 +43,6 @@ exports.getUserInfo = async (req, res) => {
     })
 
   } catch (e) {
-    res.status(500).json({ status: 'error', error: e.message })
+    res.status(500).json({ status: 'error', message: e.message })
   }
 }

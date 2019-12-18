@@ -38,7 +38,6 @@ exports.fetchGroupInfo = async (req, res) => {
     const group = await Group.findOne({ hashid: groupId })
       .populate('members.user', '_id name avatar')
       .populate('posts').select('-__v')
-
   
     if (!group) {
       return res.status(404).json({
@@ -54,14 +53,12 @@ exports.fetchGroupInfo = async (req, res) => {
   } catch (e) {
     res.status(500).json({ status: 'error', message: e.message })
   }
-
 }
 
 exports.fetchGroups = async (req, res) => {
   try {
-    // throw new Error('test error') 
     const groups = await Group.find({ private: false }).select('_id name slug hashid membersLength')
-    // console.log(groups)
+
     res.status(200).json({
       status: 'success',
       groups,
@@ -72,7 +69,6 @@ exports.fetchGroups = async (req, res) => {
       message: e.message,
     })
   }
-  
 }
 
 exports.joinGroup = async (req, res) => {
@@ -89,8 +85,8 @@ exports.joinGroup = async (req, res) => {
       message: 'You are a member already',
     })
   }
-  try {
 
+  try {
     const group = await Group.findOneAndUpdate({ hashid: groupId }, { 
       $push: {
         members: {
@@ -102,8 +98,6 @@ exports.joinGroup = async (req, res) => {
         membersLength: +1,
       },
     }, { new: true })
-
-    
 
     res.status(200).json({
       status: 'success',
